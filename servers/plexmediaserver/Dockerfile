@@ -10,10 +10,16 @@ ADD start.sh /start.sh
 RUN chmod a+rx /start.sh
 
 VOLUME ["/data"]
+
 # Music library
 VOLUME ["/music"]
+
 # Video library
 VOLUME ["/videos"]
+
+# clips
+VOLUME ["/Clips"]
+
 EXPOSE 32400
 
 CMD ["/start.sh"]
