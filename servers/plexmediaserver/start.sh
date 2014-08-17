@@ -1,7 +1,7 @@
 #! /bin/sh
 
 set -e
-
+set -x
 rm -f "/data/Library/Application Support/Plex Media Server/plexmediaserver.pid"
 
 service dbus start

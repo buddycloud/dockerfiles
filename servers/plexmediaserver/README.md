@@ -56,4 +56,12 @@ docker run -d -n=false \
   plexmediaserver
 ```
 
-Now just navigate to [http://192.168.0.10:32400/web/](http://192.168.0.10:32400/web/) to set up Plex.
+for nice presentation in Apache eg `plex.your-domain.com` add the `plex.imaginator.com.conf` file to your `/etc/apache2/site-avaliable/` and run `a2ensite`
+
+to ensure the server runs when Ubuntu boots, add `plex-mediaserver-docker.conf` to `/etc/init/`
+
+#### GUI Setup
+
+* Now just navigate to [http://192.168.0.10:32400/web/](http://192.168.0.10:32400/web/) to set up Plex.
+* set `http://plex.imaginator.com/web/index.html#!/settings/server` to `Server is mapped to port 32400`
+
