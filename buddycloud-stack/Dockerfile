@@ -34,7 +34,7 @@ ADD config/prosody.cfg.lua               /etc/prosody/prosody.cfg.lua
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
 RUN wget --quiet -O /tmp/buddycloud-server.deb http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-server-java/buddycloud-server-java_20140811.git.52de5d7-1/buddycloud-server-java_20140811.git.52de5d7-1_all.deb 
 # ensure database is ready
-/etc/dbconfig-common/buddycloud-server-java.conf
+ADD config/buddycloud-server-java.dbconfig.conf /etc/dbconfig-common/buddycloud-server-java.conf 
 
 RUN DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/buddycloud-server.deb
 # update configuration files
@@ -44,7 +44,7 @@ ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-
 # Setup web-layer
 RUN apt-get install -y --no-install-recommends nodejs apache2 
 RUN wget --quiet -O /tmp/http-api.deb http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/buddycloud-http-api_20140811.git.c3bc176-1/buddycloud-http-api_20140811.git.c3bc176-1_amd64.deb
-RUN dpkg -i /tmp/http-api.deb
+RUN DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/http-api.deb
 RUN a2enmod rewrite proxy_http ssl headers expires deflate
 ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-enabled/
 ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
