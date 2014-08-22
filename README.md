@@ -23,13 +23,13 @@ This Dockerfile setups a buddycloud stack with the following features:
 * `git clone git@github.com:buddycloud/docker.git`
 * `cd docker/buddycloud-stack`
 * quickly configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/EXAMPLE.COM/mydomain.com/g' {} \;`
-* `sudo docker.io  build -t buddycloud-stack .`
+* `docker  build -t buddycloud-stack .`
 
 ## Running
 
 Launch your process
 ```
-sudo /usr/bin/docker.io run \ 
+docker run \ 
   -v somewhere-on-your-host-fs:/var/log/ \
   -v <local-persistient-storage-area>:/var/lib/postgres \ 
   buddycloud-stack
