@@ -56,7 +56,7 @@ RUN apt-get install -y --no-install-recommends nodejs
 RUN wget --quiet -O /tmp/http-api.deb http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/buddycloud-http-api_latest.deb
 RUN DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/http-api.deb
 ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/buddycloud-apache-virtual-host.conf
-RUN a2enmod proxy_wstunnel
+RUN a2enmod proxy_wstunnel rewrite ssl headers expires
 RUN a2ensite buddycloud-apache-virtual-host
 RUN service apache2 restart
 
