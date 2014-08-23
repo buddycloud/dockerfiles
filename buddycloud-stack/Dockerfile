@@ -27,7 +27,13 @@ RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
 # Switch back to root
 USER root
-RUN netstat -panute
+
+# Setup bind
+RUN apt-get install -y --no-install-recommends bind9
+ADD config/buddycloud-bind-zone-conf.local /tmp/buddycloud-bind-zone-conf.local
+RUN cat /tmp/buddycloud-bind-zone-conf.local >> /etc/bind/named.conf.local
+ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
+RUN /etc/init.d/bind9 restart
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl
@@ -65,10 +71,9 @@ RUN wget --quiet -O /tmp/webclient.deb http://downloads.buddycloud.com/packages/
 RUN DEBIAN_FRONTED=noninteractive dpkg -i /tmp/webclient.deb
 ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
 
-
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT /etc/init.d/postgresql start && /etc/init.d/prosody start && \
+ENTRYPOINT /etc/init.d/bind start && /etc/init.d/postgresql start && /etc/init.d/prosody start && \
            /etc/init.d/buddycloud-server-java start && service apache2 start && \
            /etc/init.d/buddycloud-http-api start && /bin/sh -c
 CMD ["/bin/bash"] 
