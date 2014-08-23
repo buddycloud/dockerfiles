@@ -1,17 +1,14 @@
 # This Dockerfile sets up the Buddycloud stack from the database layer
 # all the way up to the webserver, API and user-facing webclient
+
 FROM ubuntu:14.04
-
-# Set the env variable DEBIAN_FRONTEND to noninteractive
-ENV DEBIAN_FRONTEND noninteractive
-
 RUN apt-get update
 
 # Common dependencies
 RUN apt-get install -y --no-install-recommends wget  
 
 # Setup Database-layer
-RUN apt-get -y -q install postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y -q install postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
 
 # Run the rest of the commands as the ``postgres`` user created by the ``postgres-9.3`` package when it was ``apt-get installed``
 USER postgres
@@ -30,7 +27,13 @@ RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 
 # Switch back to root
 USER root
-RUN netstat -panute
+
+# Setup bind
+RUN apt-get install -y --no-install-recommends bind9
+ADD config/buddycloud-bind-zone-conf.local /tmp/buddycloud-bind-zone-conf.local
+RUN cat /tmp/buddycloud-bind-zone-conf.local >> /etc/bind/named.conf.local
+ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
+RUN /etc/init.d/bind9 restart
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl
@@ -38,12 +41,12 @@ ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
 RUN service prosody restart
 
 # Setup buddycloud-layer
-RUN apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
 RUN wget --quiet -O /tmp/buddycloud-server.deb http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-server-java/buddycloud-server-java_latest.deb 
 # ensure database is ready
 ADD config/buddycloud-server-java.dbconfig.conf /etc/dbconfig-common/buddycloud-server-java.conf 
 # install debian package
-RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-server.deb
+RUN /etc/init.d/postgresql start && DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/buddycloud-server.deb
 # update configuration files
 ADD config/buddycloud-server-java-configuration.properties /usr/share/buddycloud-server-java/configuration.properties
 ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-java/log4j.properties
@@ -52,23 +55,26 @@ ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-
 RUN apt-get install -y --no-install-recommends apache2 
 ADD config/buddycloud.dev.cert.pem    /etc/apache2/certs/
 ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
+RUN service apache2 start
 
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
 RUN wget --quiet -O /tmp/http-api.deb http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/buddycloud-http-api_latest.deb
-RUN dpkg -i /tmp/http-api.deb
-ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/buddycloud-apache-virtual-host.conf
-RUN a2enmod proxy_wstunnel rewrite ssl headers expires
-RUN a2ensite buddycloud-apache-virtual-host
+RUN DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/http-api.deb
+ADD config/buddycloud-http-api-config.js /usr/share/buddycloud-http-api/config.js
 
 # Setup Buddycloud Webclient
 RUN wget --quiet -O /tmp/webclient.deb http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb
-RUN dpkg -i /tmp/webclient.deb
+RUN DEBIAN_FRONTED=noninteractive dpkg -i /tmp/webclient.deb
 ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
+ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/buddycloud-apache-virtual-host.conf
+RUN a2enmod proxy_wstunnel rewrite ssl headers expires
+RUN a2dissite buddycloud-apache-virtual-host
+RUN a2ensite buddycloud-apache-virtual-host
+RUN service apache2 restart
 
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT /etc/init.d/postgresql start && /etc/init.d/prosody start && \
+ENTRYPOINT /etc/init.d/bind9 start && /etc/init.d/postgresql start && /etc/init.d/prosody start && \
            /etc/init.d/buddycloud-server-java start && service apache2 start && \
-           /etc/init.d/buddycloud-http-api start && /bin/sh -c
-CMD ["/bin/bash"] 
+           /etc/init.d/buddycloud-http-api start; /bin/bash
