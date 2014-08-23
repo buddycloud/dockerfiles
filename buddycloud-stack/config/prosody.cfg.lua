@@ -30,8 +30,8 @@ VirtualHost "buddycloud.dev"
 -- for non-logged in browsing of open channels.
 VirtualHost "anon.buddycloud.dev"
   authentication        = "anonymous"
-  allow_registration    = false
   anonymous_login       = true
+  allow_anonymous_s2s   = true
 
 -- Buddycloud Channel Server XMPP component configuration.
 Component "buddycloud.buddycloud.dev"
