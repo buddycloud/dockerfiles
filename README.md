@@ -29,7 +29,8 @@ This Dockerfile setups a buddycloud stack with the following features:
 
 Launch your process
 ```
-docker run \ 
+docker run \
+  --dns 127.0.0.1 \
   -v somewhere-on-your-host-fs:/var/log/ \
   -v <local-persistient-storage-area>:/var/lib/postgres \
   -dns 127.0.0.1 \ 
