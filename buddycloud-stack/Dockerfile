@@ -33,7 +33,7 @@ RUN apt-get install -y --no-install-recommends bind9
 ADD config/buddycloud-bind-zone-conf.local /tmp/buddycloud-bind-zone-conf.local
 RUN cat /tmp/buddycloud-bind-zone-conf.local >> /etc/bind/named.conf.local
 ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
-RUN /etc/init.d/bind9 restart
+RUN service bind9 restart
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl
@@ -46,7 +46,7 @@ RUN wget --quiet -O /tmp/buddycloud-server.deb http://downloads.buddycloud.com/p
 # ensure database is ready
 ADD config/buddycloud-server-java.dbconfig.conf /etc/dbconfig-common/buddycloud-server-java.conf 
 # install debian package
-RUN /etc/init.d/postgresql start && DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/buddycloud-server.deb
+RUN service postgresql start && DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/buddycloud-server.deb
 # update configuration files
 ADD config/buddycloud-server-java-configuration.properties /usr/share/buddycloud-server-java/configuration.properties
 ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-java/log4j.properties
@@ -76,6 +76,6 @@ RUN service apache2 restart
 
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT /etc/init.d/bind9 start && /etc/init.d/postgresql start && /etc/init.d/prosody start && \
+ENTRYPOINT service bind9 start && service postgresql start && service prosody start && \
            /etc/init.d/buddycloud-server-java start && service apache2 start && \
            /etc/init.d/buddycloud-http-api start; /bin/bash
