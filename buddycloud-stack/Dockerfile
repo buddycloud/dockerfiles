@@ -4,6 +4,8 @@
 FROM ubuntu:14.04
 RUN apt-get update
 
+ENV DEBIAN_FRONTEND noninteractive
+
 # Common dependencies
 RUN apt-get install -y --no-install-recommends wget  
 
