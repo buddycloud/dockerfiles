@@ -50,6 +50,7 @@ ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-
 
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
+# these are keys for *.buddycloud.dev. Prosody will also use them.
 ADD config/buddycloud.dev.cert.pem    /etc/apache2/certs/
 ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
 
