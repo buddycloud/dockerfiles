@@ -31,6 +31,7 @@ Launch your process
 ```
 docker run \ 
   -v somewhere-on-your-host-fs:/var/log/ \
-  -v <local-persistient-storage-area>:/var/lib/postgres \ 
+  -v <local-persistient-storage-area>:/var/lib/postgres \
+  -dns 127.0.0.1 \ 
   buddycloud-stack
 ```

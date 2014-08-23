@@ -8,7 +8,7 @@ RUN apt-get update
 RUN apt-get install -y --no-install-recommends wget  
 
 # Setup Database-layer
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y -q install postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
+RUN apt-get -y -q install postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
 
 # Run the rest of the commands as the ``postgres`` user created by the ``postgres-9.3`` package when it was ``apt-get installed``
 USER postgres
@@ -33,7 +33,7 @@ RUN cat /tmp/buddycloud-bind-zone-conf.local >> /etc/bind/named.conf.local
 ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
 
 # Setup XMPP-layer
-RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl
+RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lua-sec
 ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
 
 # Setup buddycloud-layer
