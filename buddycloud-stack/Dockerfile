@@ -47,7 +47,9 @@ RUN apt-get install -y --no-install-recommends apache2
 RUN service apache2 start
 RUN wget --quiet -O /tmp/webclient.deb http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb
 RUN DEBIAN_FRONTED=noninteractive dpkg -i /tmp/webclient.deb
-ADD config/buddycloud-webclient-config.js /usr/share/buddycloud-webclient/config.js
+ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
+ADD config/dot-local-wildcard.certificate.pem /etc/apache2/certs/
+ADD config/dot-local-wildcard.key.pem         /etc/apache2/certs/
 
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
