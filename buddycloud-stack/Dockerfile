@@ -61,19 +61,20 @@ RUN service apache2 start
 RUN apt-get install -y --no-install-recommends nodejs
 RUN wget --quiet -O /tmp/http-api.deb http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/buddycloud-http-api_latest.deb
 RUN DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/http-api.deb
-ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/buddycloud-apache-virtual-host.conf
-RUN a2enmod proxy_wstunnel rewrite ssl headers expires
-RUN a2ensite buddycloud-apache-virtual-host
-RUN service apache2 restart
+ADD config/buddycloud-http-api-config.js /usr/share/buddycloud-http-api/config.js
 
 # Setup Buddycloud Webclient
 RUN wget --quiet -O /tmp/webclient.deb http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb
 RUN DEBIAN_FRONTED=noninteractive dpkg -i /tmp/webclient.deb
 ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
+ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/buddycloud-apache-virtual-host.conf
+RUN a2enmod proxy_wstunnel rewrite ssl headers expires
+RUN a2dissite buddycloud-apache-virtual-host
+RUN a2ensite buddycloud-apache-virtual-host
+RUN service apache2 restart
 
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT /etc/init.d/bind start && /etc/init.d/postgresql start && /etc/init.d/prosody start && \
+ENTRYPOINT /etc/init.d/bind9 start && /etc/init.d/postgresql start && /etc/init.d/prosody start && \
            /etc/init.d/buddycloud-server-java start && service apache2 start && \
            /etc/init.d/buddycloud-http-api start && /bin/sh -c
-CMD ["/bin/bash"] 
