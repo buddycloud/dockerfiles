@@ -1,8 +1,11 @@
+# This Dockerfile sets up the Buddycloud stack from the database layer
+# all the way up to the webserver, API and user-facing webclient
+
 FROM ubuntu:14.04
 RUN apt-get update
 
 # Common dependencies
-RUN apt-get install -y --no-install-recommends wget gdebi-core  
+RUN apt-get install -y --no-install-recommends wget  
 
 # Setup Database-layer
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y -q install postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
@@ -42,14 +45,11 @@ ADD config/buddycloud-server-java-configuration.properties /usr/share/buddycloud
 ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-java/log4j.properties
 RUN /etc/init.d/buddycloud-server-java restart
 
-# Setup webclient
+# Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
+ADD config/dot-buddycloud-wildcard.cert.pem    /etc/apache2/certs/
+ADD config/dot-buddycloud-wildcard.key.pem     /etc/apache2/certs/
 RUN service apache2 start
-RUN wget --quiet -O /tmp/webclient.deb http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb
-RUN DEBIAN_FRONTED=noninteractive dpkg -i /tmp/webclient.deb
-ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
-ADD config/dot-local-wildcard.certificate.pem /etc/apache2/certs/
-ADD config/dot-local-wildcard.key.pem         /etc/apache2/certs/
 
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
@@ -60,6 +60,12 @@ RUN a2enmod rewrite proxy_http ssl headers expires deflate
 RUN a2ensite buddycloud-apache-virtual-host
 RUN service apache2 restart
 RUN /etc/init.d/buddycloud-http-api restart
+
+# Setup Buddycloud Webclient
+RUN wget --quiet -O /tmp/webclient.deb http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb
+RUN DEBIAN_FRONTED=noninteractive dpkg -i /tmp/webclient.deb
+ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
+
 
 EXPOSE 80 443 5222 5269
 
