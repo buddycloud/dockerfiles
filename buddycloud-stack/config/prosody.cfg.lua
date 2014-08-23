@@ -12,7 +12,7 @@ modules_enabled = {
 };
 
 storage                 = "internal"
-admins                  = { "your-username@EXAMPLE.COM" }  -- who receives registration alerts
+admins                  = { "your-username@buddycloud.dev" }  -- who receives registration alerts
 pidfile                 = "/var/run/prosody/prosody.pid"
 log                     = {{ levels = { min = "error" }, to = "file", filename = "/var/log/prosody/prosody.err" };
                            { levels = { min = "info"  }, to = "file", filename = "/var/log/prosody/prosody.log" };}
@@ -20,31 +20,31 @@ registration_whitelist      = { "127.0.0.1" }
 whitelist_registration_only = true
 
 
-VirtualHost "EXAMPLE.COM"
+VirtualHost "buddycloud.dev"
   authentication        = "internal_hashed"
   allow_registration    = true 
   anonymous_login       = false
-  ssl                   = {         key = "/etc/apache2/certs/EXAMPLE.COM.key";
-                            certificate = "/etc/apache2/certs/EXAMPLE.COM.pem" }
+  ssl                   = { certificate = "/etc/apache2/certs/buddycloud.dev.cert.pem";
+                                    key = "/etc/apache2/certs/buddycloud.dev.key.pem" }
 
 -- for non-logged in browsing of open channels.
-VirtualHost "anon.EXAMPLE.COM"
+VirtualHost "anon.buddycloud.dev"
   authentication        = "anonymous"
   allow_registration    = false
   anonymous_login       = true
 
 -- Buddycloud Channel Server XMPP component configuration.
-Component "buddycloud.EXAMPLE.COM"
+Component "buddycloud.buddycloud.dev"
   component_secret      = "tellnoone"
 
 -- Buddycloud Channel Server (optional topic channels).
-Component "topics.EXAMPLE.COM"
+Component "topics.buddycloud.dev"
   component_secret      = "tellnoone"
 
 -- Buddycloud Media Server XMPP component configuration.
-Component "media.EXAMPLE.COM"
+Component "media.buddycloud.dev"
   component_secret      = "tellnoone"
 
 -- Buddycloud Pusher Server XMPP component configuration.
-Component "pusher.EXAMPLE.COM"
+Component "pusher.buddycloud.dev"
   component_secret      = "tellnoone"
