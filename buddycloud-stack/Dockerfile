@@ -47,8 +47,8 @@ ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-
 
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
-ADD config/dot-buddycloud-wildcard.cert.pem    /etc/apache2/certs/
-ADD config/dot-buddycloud-wildcard.key.pem     /etc/apache2/certs/
+ADD config/buddycloud.dev.cert.pem    /etc/apache2/certs/
+ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
 RUN service apache2 start
 
 # Setup http-api
