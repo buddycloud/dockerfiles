@@ -18,13 +18,11 @@ USER postgres
 #       allows the RUN command to span multiple lines.
 RUN /etc/init.d/postgresql start && psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
     createdb -O docker docker
-
 # Adjust PostgreSQL configuration so that remote connections to the
 # database are possible.
 RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/9.3/main/pg_hba.conf
 # And add ``listen_addresses`` to ``/etc/postgresql/9.3/main/postgresql.conf``
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
-
 # Switch back to root
 USER root
 
@@ -33,12 +31,10 @@ RUN apt-get install -y --no-install-recommends bind9
 ADD config/buddycloud-bind-zone-conf.local /tmp/buddycloud-bind-zone-conf.local
 RUN cat /tmp/buddycloud-bind-zone-conf.local >> /etc/bind/named.conf.local
 ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
-RUN service bind9 restart
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl
 ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
-RUN service prosody restart
 
 # Setup buddycloud-layer
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
@@ -46,7 +42,7 @@ RUN wget --quiet -O /tmp/buddycloud-server.deb http://downloads.buddycloud.com/p
 # ensure database is ready
 ADD config/buddycloud-server-java.dbconfig.conf /etc/dbconfig-common/buddycloud-server-java.conf 
 # install debian package
-RUN service postgresql start && DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/buddycloud-server.deb
+dpkg -i /tmp/buddycloud-server.deb
 # update configuration files
 ADD config/buddycloud-server-java-configuration.properties /usr/share/buddycloud-server-java/configuration.properties
 ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-java/log4j.properties
@@ -56,7 +52,6 @@ RUN apt-get install -y --no-install-recommends apache2
 # these are keys for *.buddycloud.dev. Prosody will also use them.
 ADD config/buddycloud.dev.cert.pem    /etc/apache2/certs/
 ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
-RUN service apache2 start
 
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
@@ -72,7 +67,6 @@ ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/budd
 RUN a2enmod proxy_wstunnel rewrite ssl headers expires
 RUN a2dissite buddycloud-apache-virtual-host
 RUN a2ensite buddycloud-apache-virtual-host
-RUN service apache2 restart
 
 EXPOSE 80 443 5222 5269
 
