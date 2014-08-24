@@ -49,6 +49,20 @@ RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-server.deb
 ADD config/buddycloud-server-java-configuration.properties /usr/share/buddycloud-server-java/configuration.properties
 ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-java/log4j.properties
 
+# Setup buddycloud-media-server
+ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-media-server/buddycloud-media-server_latest.deb  /tmp/buddycloud-media-server.deb 
+# ensure database is ready
+ADD config/buddycloud-media-server.dbconfig.conf /etc/dbconfig-common/buddycloud-media-server.conf 
+# create media server XMPP client account
+RUN /etc/init.d/prosody start && prosodyctl register mediaclient buddycloud.dev tellnoone
+# install debian package
+RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-media-server.deb
+# update configuration files
+ADD config/buddycloud-media-server-configuration.properties /usr/share/buddycloud-media-server/mediaserver.properties
+ADD config/buddycloud-media-server-log4j.xml /usr/share/buddycloud-server-java/logback.xml
+# create storage dir and give proper permissions
+RUN mkdir -p /var/lib/media-storage; chown -R buddycloud:buddycloud /var/lib/media-storage
+
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
 # these are keys for *.buddycloud.dev. Prosody will also use them.
@@ -73,5 +87,5 @@ RUN a2ensite buddycloud-apache-virtual-host
 EXPOSE 80 443 5222 5269
 
 ENTRYPOINT service bind9 start && service postgresql start && service prosody start && \
-           /etc/init.d/buddycloud-server-java start && service apache2 restart && \
-           /etc/init.d/buddycloud-http-api start; /bin/bash
+           /etc/init.d/buddycloud-server-java start && /etc/init.d/buddycloud-media-server start && \
+           service apache2 restart && /etc/init.d/buddycloud-http-api start; /bin/bash
