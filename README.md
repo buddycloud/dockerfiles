@@ -31,8 +31,26 @@ Launch your process
 ```
 docker run \
   --dns 127.0.0.1 \
-  -v somewhere-on-your-host-fs:/var/log/ \
-  -v <local-persistient-storage-area>:/var/lib/postgres \
-  -dns 127.0.0.1 \ 
+  -v /srv/buddycloud-stack/logs:/var/log/ \
+  -v /srv/buddycloud-stack/postgres:/var/lib/postgres \
+  -v /srv/buddycloud-stack/media-storage:/var/lib/media-storage \
   buddycloud-stack
 ```
+
+## Tips
+
+```bash
+apt-get install squid
+sudo vim /etc/squid3/squid.conf
+http_port 127.0.0.1:3128
+service squid3 restart 
+```
+
+edit your docker config (`/etc/default/docker`)
+
+```
+# If you need Docker to use an HTTP proxy, it can also be specified here.
+export http_proxy="http://127.0.0.1:3128/"
+```
+
+and restart with `service docker restart`
