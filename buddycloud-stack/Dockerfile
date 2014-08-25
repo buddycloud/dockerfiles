@@ -67,9 +67,6 @@ RUN mkdir -p /var/lib/media-storage; chown -R buddycloud:buddycloud /var/lib/med
 
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
-# these are keys for *.buddycloud.dev. Prosody will also use them.
-ADD config/buddycloud.dev.cert.pem    /etc/apache2/certs/
-ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
 
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
