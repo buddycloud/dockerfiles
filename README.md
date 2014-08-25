@@ -52,3 +52,5 @@ edit your docker config (`/etc/default/docker`)
 # If you need Docker to use an HTTP proxy, it can also be specified here.
 export http_proxy="http://127.0.0.1:3128/"
 ```
+
+and restart with `service docker restart`
