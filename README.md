@@ -29,22 +29,33 @@ This Dockerfile setups a buddycloud stack with the following features:
 
 Launch your process
 ```
-docker run \
-  --dns 127.0.0.1 \
-  -v /srv/ssl:/srv/ssl \ 
-  -v /srv/buddycloud-stack/logs:/var/log/ \ 
-  -v /srv/buddycloud-stack/postgres:/var/lib/postgres \ 
-  -v /srv/buddycloud-stack/media-storage:/var/lib/media-storage \ 
-  -p 80:80 -p 443:443 -p 5269:5269 \ 
-  buddycloud-stack
+docker run 
+  -i 
+  --dns 8.8.8.8 
+  -v /srv/ssl:/srv/ssl 
+  -v /srv/buddycloud-stack/logs:/var/log/buddycloud
+  -v /srv/buddycloud-stack/media-storage:/var/lib/media-storage
+  -P -p 80:80 -p 443:443 -p 5269:5269 
+  -t buddycloud-stack                               
 ```
 
-## Tips
+## Build speed
+
+Squid will speed up builds
 
 ```bash
 apt-get install squid
-sudo vim /etc/squid3/squid.conf
+```
+
+edit `/etc/squid3/squid.conf`
+
+The important lines are
+```
 http_port 127.0.0.1:3128
+refresh_pattern (\.deb|\.udeb|\.rpm)$   129600 100% 129600
+```
+
+```bash
 service squid3 restart 
 ```
 
