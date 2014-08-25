@@ -40,6 +40,8 @@ ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lua-sec
 ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
+RUN touch /var/log/prosody.log /var/log/prosody.err
+RUN chown prosody /var/log/prosody.log /var/log/prosody.err
 
 # Setup buddycloud-layer
 RUN apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
@@ -57,7 +59,7 @@ ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-media-ser
 # ensure database is ready
 ADD config/buddycloud-media-server.dbconfig.conf /etc/dbconfig-common/buddycloud-media-server.conf 
 # create media server XMPP client account
-RUN /etc/init.d/prosody start && prosodyctl register mediaclient buddycloud.dev tellnoone
+RUN /etc/init.d/prosody start && prosodyctl register mediaclient buddycloud.f24.com tellnoone
 # install debian package
 RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-media-server.deb
 # update configuration files
