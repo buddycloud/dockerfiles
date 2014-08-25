@@ -6,6 +6,9 @@ RUN apt-get update
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# we try to log everything into one directory
+RUN mkdir /var/log/buddycloud
+
 # Common dependencies
 RUN apt-get install -y --no-install-recommends wget  
 
@@ -30,18 +33,11 @@ USER root
 # Add VOLUMEs to allow backup of databases
 VOLUME  ["/var/lib/postgresql"]
 
-
-# Setup bind
-RUN apt-get install -y --no-install-recommends bind9
-ADD config/buddycloud-bind-zone-conf.local /tmp/buddycloud-bind-zone-conf.local
-RUN cat /tmp/buddycloud-bind-zone-conf.local >> /etc/bind/named.conf.local
-ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
-
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lua-sec
 ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
-RUN touch /var/log/prosody.log /var/log/prosody.err
-RUN chown prosody /var/log/prosody.log /var/log/prosody.err
+RUN touch /var/log/buddycloud/prosody.log /var/log/buddycloud/prosody.err
+RUN chown prosody /var/log/buddycloud/prosody.log /var/log/buddycloud/prosody.err
 
 # Setup buddycloud-layer
 RUN apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
