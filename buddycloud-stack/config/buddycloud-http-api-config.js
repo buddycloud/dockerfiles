@@ -9,11 +9,15 @@ exports._ = {
 // Production settings (used by default)
 exports.production = {
   debug: true,
-  xmppDomain: 'buddycloud.dev',
+  xmppDomain: 'buddycloud.f24.com',
   xmppHost: '127.0.0.1',
-  xmppAnonymousDomain: 'anon.buddycloud.dev',
-  channelDomain: 'buddycloud.buddycloud.dev',
+  xmppAnonymousDomain: 'anon.buddycloud.f24.com',
+  channelDomain: 'buddycloud.buddycloud.f24.com',
   searchComponent: 'search.buddycloud.org',
   homeMediaRoot: 'http://localhost:60080',
-  disableWebsocket: false
+  disableWebsocket: false,
+  logTransport: 'file',
+  logFile: '/var/log/buddycloud/buddycloud-http-api/buddycloud-http-api.log',
+  logLevel: 'debug',
+  logUseJson: false
 };

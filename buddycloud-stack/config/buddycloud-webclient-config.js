@@ -1,7 +1,7 @@
 
 define({
     baseUrl: '/api/',
-    homeDomain: 'buddycloud.dev',
+    homeDomain: 'buddycloud.f24.com',
     embedlyKey: '',
     embedlySecure: false,
 })
