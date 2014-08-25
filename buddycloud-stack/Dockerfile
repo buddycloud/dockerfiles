@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get install -y --no-install-recommends wget  
 
 # Setup Database-layer
-RUN apt-get -y -q install postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
+RUN apt-get -y -q install --no-install-recommends postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
 
 # Run the rest of the commands as the ``postgres`` user created by the ``postgres-9.3`` package when it was ``apt-get installed``
 USER postgres
@@ -27,6 +27,9 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/9.3/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # Switch back to root
 USER root
+# Add VOLUMEs to allow backup of databases
+VOLUME  ["/var/lib/postgresql"]
+
 
 # Setup bind
 RUN apt-get install -y --no-install-recommends bind9
@@ -39,7 +42,7 @@ RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lu
 ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
 
 # Setup buddycloud-layer
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
+RUN apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
 ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-server-java/buddycloud-server-java_latest.deb  /tmp/buddycloud-server.deb 
 # ensure database is ready
 ADD config/buddycloud-server-java.dbconfig.conf /etc/dbconfig-common/buddycloud-server-java.conf 
@@ -72,12 +75,12 @@ ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
 ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/buddycloud-http-api_latest.deb /tmp/http-api.deb 
-RUN DEBIAN_FRONTEND=noninteractive dpkg -i /tmp/http-api.deb
+RUN dpkg -i /tmp/http-api.deb
 ADD config/buddycloud-http-api-config.js /usr/share/buddycloud-http-api/config.js
 
 # Setup Buddycloud Webclient
 ADD http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb /tmp/webclient.deb 
-RUN DEBIAN_FRONTED=noninteractive dpkg -i /tmp/webclient.deb
+RUN dpkg -i /tmp/webclient.deb
 ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
 ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/buddycloud-apache-virtual-host.conf
 RUN a2enmod proxy_wstunnel rewrite ssl headers expires
