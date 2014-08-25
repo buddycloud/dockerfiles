@@ -7,7 +7,7 @@ RUN apt-get update
 ENV DEBIAN_FRONTEND noninteractive
 
 # we try to log everything into one directory
-RUN mkdir /var/log/buddycloud && chmod a+rwx /var/log/buddycloud
+RUN mkdir /var/log/buddycloud
 
 # Common dependencies
 RUN apt-get install -y --no-install-recommends wget  
@@ -21,7 +21,7 @@ USER postgres
 # then create a database `docker` owned by the ``docker`` role.
 # Note: here we use ``&&\`` to run commands one after the other - the ``\``
 #       allows the RUN command to span multiple lines.
-RUN service postgresql start && psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
+RUN /etc/init.d/postgresql start && psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
     createdb -O docker docker
 # Adjust PostgreSQL configuration so that remote connections to the
 # database are possible.
@@ -31,7 +31,7 @@ RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # Switch back to root
 USER root
 # Add VOLUMEs to allow backup of databases
-# VOLUME  ["/var/lib/postgresql"]
+VOLUME  ["/var/lib/postgresql"]
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lua-sec
@@ -45,7 +45,7 @@ ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-server-ja
 # ensure database is ready
 ADD config/buddycloud-server-java.dbconfig.conf /etc/dbconfig-common/buddycloud-server-java.conf 
 # install debian package
-RUN service postgresql start && dpkg -i /tmp/buddycloud-server.deb
+RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-server.deb
 # update configuration files
 ADD config/buddycloud-server-java-configuration.properties /usr/share/buddycloud-server-java/configuration.properties
 ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-java/log4j.properties
@@ -55,26 +55,27 @@ ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-media-ser
 # ensure database is ready
 ADD config/buddycloud-media-server.dbconfig.conf /etc/dbconfig-common/buddycloud-media-server.conf 
 # install debian package
-RUN service postgresql start && dpkg -i /tmp/buddycloud-media-server.deb
+RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-media-server.deb
 # update configuration files
 ADD config/buddycloud-media-server-configuration.properties /usr/share/buddycloud-media-server/mediaserver.properties
 ADD config/buddycloud-media-server-log4j.xml /usr/share/buddycloud-server-java/logback.xml
 # create media server XMPP client account
 ADD bin/buddycloud-media-server-create-user.sh /tmp/buddycloud-media-server-create-user.sh
-RUN service prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
+RUN /etc/init.d/prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
 # create storage dir and give proper permissions
 RUN mkdir -p /var/lib/media-storage; chown -R buddycloud:buddycloud /var/lib/media-storage
-RUN mkdir -p /var/log/buddycloud/buddycloud-media-server; chown -R buddycloud:buddycloud /var/log/buddycloud/buddycloud-media-server
 
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
+# these are keys for *.buddycloud.dev. Prosody will also use them.
+ADD config/buddycloud.dev.cert.pem    /etc/apache2/certs/
+ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
 
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
 ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/buddycloud-http-api_latest.deb /tmp/http-api.deb 
 RUN dpkg -i /tmp/http-api.deb
 ADD config/buddycloud-http-api-config.js /usr/share/buddycloud-http-api/config.js
-RUN mkdir -p /var/log/buddycloud/buddycloud-http-api; chown -R buddycloud:buddycloud /var/log/buddycloud/buddycloud-http-api
 
 # Setup Buddycloud Webclient
 ADD http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb /tmp/webclient.deb 
@@ -84,10 +85,9 @@ ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/budd
 RUN a2enmod proxy_wstunnel rewrite ssl headers expires
 RUN a2dissite buddycloud-apache-virtual-host
 RUN a2ensite buddycloud-apache-virtual-host
-RUN chmod -R 777 /var/log/buddycloud
 
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT service postgresql start && service prosody start && \
+ENTRYPOINT service bind9 start && service postgresql start && service prosody start && \
            /etc/init.d/buddycloud-server-java start && /etc/init.d/buddycloud-media-server start && \
            service apache2 restart && /etc/init.d/buddycloud-http-api start; /bin/bash
