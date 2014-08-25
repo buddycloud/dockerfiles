@@ -1,4 +1,4 @@
-zone "buddycloud.f24.com" {
+zone "buddycloud.dev" {
     type master;
-    file "/etc/bind/db.buddycloud.f24.com";
+    file "/etc/bind/db.buddycloud.dev";
 };
