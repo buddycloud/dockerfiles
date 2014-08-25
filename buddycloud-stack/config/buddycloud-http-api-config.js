@@ -15,4 +15,5 @@ exports.production = {
   channelDomain: 'buddycloud.buddycloud.dev',
   searchComponent: 'search.buddycloud.org',
   homeMediaRoot: 'http://localhost:60080',
+  disableWebsocket: false
 };
