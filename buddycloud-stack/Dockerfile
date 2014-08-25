@@ -7,7 +7,7 @@ RUN apt-get update
 ENV DEBIAN_FRONTEND noninteractive
 
 # we try to log everything into one directory
-RUN mkdir /var/log/buddycloud && chmod a+rx /var/log/buddycloud
+RUN mkdir /var/log/buddycloud && chmod a+rwx /var/log/buddycloud
 
 # Common dependencies
 RUN apt-get install -y --no-install-recommends wget  
@@ -31,7 +31,7 @@ RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # Switch back to root
 USER root
 # Add VOLUMEs to allow backup of databases
-VOLUME  ["/var/lib/postgresql"]
+# VOLUME  ["/var/lib/postgresql"]
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lua-sec
@@ -82,6 +82,7 @@ ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/budd
 RUN a2enmod proxy_wstunnel rewrite ssl headers expires
 RUN a2dissite buddycloud-apache-virtual-host
 RUN a2ensite buddycloud-apache-virtual-host
+RUN chmod -R 777 /var/log/buddycloud
 
 EXPOSE 80 443 5222 5269
 
