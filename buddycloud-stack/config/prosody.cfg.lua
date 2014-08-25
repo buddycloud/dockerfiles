@@ -12,39 +12,39 @@ modules_enabled = {
 };
 
 storage                 = "internal"
-admins                  = { "your-username@buddycloud.dev" }  -- who receives registration alerts
+admins                  = { "your-username@buddycloud.f24.com" }  -- who receives registration alerts
 pidfile                 = "/var/run/prosody/prosody.pid"
-log                     = {{ levels = { min = "error" }, to = "file", filename = "/var/log/prosody/prosody.err" };
-                           { levels = { min = "info"  }, to = "file", filename = "/var/log/prosody/prosody.log" };}
+log                     = {{ levels = { min = "error" }, to = "file", filename = "/var/log/buddycloud/prosody.err" };
+                           { levels = { min = "info"  }, to = "file", filename = "/var/log/buddycloud/prosody.log" };}
 registration_whitelist      = { "127.0.0.1" }
 whitelist_registration_only = true
 
 
-VirtualHost "buddycloud.dev"
+VirtualHost "buddycloud.f24.com"
   authentication        = "internal_hashed"
   allow_registration    = true 
   anonymous_login       = false
-  ssl                   = { certificate = "/etc/apache2/certs/buddycloud.dev.cert.pem";
-                                    key = "/etc/apache2/certs/buddycloud.dev.key.pem" }
+  ssl                   = { certificate = "/srv/ssl/certs/star_f24_com.crt";
+                                    key = "/srv/ssl/private/f24_wildcard_digicert.key" }
 
 -- for non-logged in browsing of open channels.
-VirtualHost "anon.buddycloud.dev"
+VirtualHost "anon.buddycloud.f24.com"
   authentication        = "anonymous"
   anonymous_login       = true
   allow_anonymous_s2s   = true
 
 -- Buddycloud Channel Server XMPP component configuration.
-Component "buddycloud.buddycloud.dev"
+Component "buddycloud.buddycloud.f24.com"
   component_secret      = "tellnoone"
 
 -- Buddycloud Channel Server (optional topic channels).
-Component "topics.buddycloud.dev"
+Component "topics.buddycloud.f24.com"
   component_secret      = "tellnoone"
 
 -- Buddycloud Media Server XMPP component configuration.
-Component "media.buddycloud.dev"
+Component "media.buddycloud.f24.com"
   component_secret      = "tellnoone"
 
 -- Buddycloud Pusher Server XMPP component configuration.
-Component "pusher.buddycloud.dev"
+Component "pusher.buddycloud.f24.com"
   component_secret      = "tellnoone"
