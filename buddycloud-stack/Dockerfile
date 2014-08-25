@@ -64,6 +64,7 @@ ADD bin/buddycloud-media-server-create-user.sh /tmp/buddycloud-media-server-crea
 RUN service prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
 # create storage dir and give proper permissions
 RUN mkdir -p /var/lib/media-storage; chown -R buddycloud:buddycloud /var/lib/media-storage
+RUN mkdir -p /var/log/buddycloud/buddycloud-media-server; chown -R buddycloud:buddycloud /var/log/buddycloud/buddycloud-media-server
 
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
@@ -73,6 +74,7 @@ RUN apt-get install -y --no-install-recommends nodejs
 ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/buddycloud-http-api_latest.deb /tmp/http-api.deb 
 RUN dpkg -i /tmp/http-api.deb
 ADD config/buddycloud-http-api-config.js /usr/share/buddycloud-http-api/config.js
+RUN mkdir -p /var/log/buddycloud/buddycloud-http-api; chown -R buddycloud:buddycloud /var/log/buddycloud/buddycloud-http-api
 
 # Setup Buddycloud Webclient
 ADD http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb /tmp/webclient.deb 
