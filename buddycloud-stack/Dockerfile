@@ -58,13 +58,14 @@ ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-
 ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-media-server/buddycloud-media-server_latest.deb  /tmp/buddycloud-media-server.deb 
 # ensure database is ready
 ADD config/buddycloud-media-server.dbconfig.conf /etc/dbconfig-common/buddycloud-media-server.conf 
-# create media server XMPP client account
-RUN /etc/init.d/prosody start && prosodyctl register mediaclient buddycloud.f24.com tellnoone
 # install debian package
 RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-media-server.deb
 # update configuration files
 ADD config/buddycloud-media-server-configuration.properties /usr/share/buddycloud-media-server/mediaserver.properties
 ADD config/buddycloud-media-server-log4j.xml /usr/share/buddycloud-server-java/logback.xml
+# create media server XMPP client account
+ADD bin/buddycloud-media-server-create-user.sh /tmp/buddycloud-media-server-create-user.sh
+RUN /etc/init.d/prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
 # create storage dir and give proper permissions
 RUN mkdir -p /var/lib/media-storage; chown -R buddycloud:buddycloud /var/lib/media-storage
 
