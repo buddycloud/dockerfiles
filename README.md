@@ -32,9 +32,10 @@ Launch your process
 docker run \
   --dns 127.0.0.1 \
   -v /srv/ssl:/srv/ssl \ 
-  -v /srv/buddycloud-stack/logs:/var/log/ \
-  -v /srv/buddycloud-stack/postgres:/var/lib/postgres \
-  -v /srv/buddycloud-stack/media-storage:/var/lib/media-storage \
+  -v /srv/buddycloud-stack/logs:/var/log/ \ 
+  -v /srv/buddycloud-stack/postgres:/var/lib/postgres \ 
+  -v /srv/buddycloud-stack/media-storage:/var/lib/media-storage \ 
+  -p 80:80 -p 443:443 -p 5269:5269 \ 
   buddycloud-stack
 ```
 

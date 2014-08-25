@@ -7,7 +7,7 @@ RUN apt-get update
 ENV DEBIAN_FRONTEND noninteractive
 
 # we try to log everything into one directory
-RUN mkdir /var/log/buddycloud
+RUN mkdir /var/log/buddycloud && chmod a+rx /var/log/buddycloud
 
 # Common dependencies
 RUN apt-get install -y --no-install-recommends wget  
@@ -21,7 +21,7 @@ USER postgres
 # then create a database `docker` owned by the ``docker`` role.
 # Note: here we use ``&&\`` to run commands one after the other - the ``\``
 #       allows the RUN command to span multiple lines.
-RUN /etc/init.d/postgresql start && psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
+RUN service postgresql start && psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
     createdb -O docker docker
 # Adjust PostgreSQL configuration so that remote connections to the
 # database are possible.
@@ -45,7 +45,7 @@ ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-server-ja
 # ensure database is ready
 ADD config/buddycloud-server-java.dbconfig.conf /etc/dbconfig-common/buddycloud-server-java.conf 
 # install debian package
-RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-server.deb
+RUN service postgresql start && dpkg -i /tmp/buddycloud-server.deb
 # update configuration files
 ADD config/buddycloud-server-java-configuration.properties /usr/share/buddycloud-server-java/configuration.properties
 ADD config/buddycloud-server-java-log4j.properties /usr/share/buddycloud-server-java/log4j.properties
@@ -55,13 +55,13 @@ ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-media-ser
 # ensure database is ready
 ADD config/buddycloud-media-server.dbconfig.conf /etc/dbconfig-common/buddycloud-media-server.conf 
 # install debian package
-RUN /etc/init.d/postgresql start && dpkg -i /tmp/buddycloud-media-server.deb
+RUN service postgresql start && dpkg -i /tmp/buddycloud-media-server.deb
 # update configuration files
 ADD config/buddycloud-media-server-configuration.properties /usr/share/buddycloud-media-server/mediaserver.properties
 ADD config/buddycloud-media-server-log4j.xml /usr/share/buddycloud-server-java/logback.xml
 # create media server XMPP client account
 ADD bin/buddycloud-media-server-create-user.sh /tmp/buddycloud-media-server-create-user.sh
-RUN /etc/init.d/prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
+RUN service prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
 # create storage dir and give proper permissions
 RUN mkdir -p /var/lib/media-storage; chown -R buddycloud:buddycloud /var/lib/media-storage
 
@@ -88,6 +88,6 @@ RUN a2ensite buddycloud-apache-virtual-host
 
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT service bind9 start && service postgresql start && service prosody start && \
+ENTRYPOINT service postgresql start && service prosody start && \
            /etc/init.d/buddycloud-server-java start && /etc/init.d/buddycloud-media-server start && \
            service apache2 restart && /etc/init.d/buddycloud-http-api start; /bin/bash
