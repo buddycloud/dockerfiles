@@ -5,16 +5,18 @@ FROM ubuntu:14.04
 RUN apt-get update
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV LOG_DIR /var/log/buddycloud
 
 # we try to log everything into one directory
-RUN mkdir /var/log/buddycloud
+RUN mkdir -p $LOG_DIR
 
 # Common dependencies
 RUN apt-get install -y --no-install-recommends wget  
 
 # Setup Database-layer
 RUN apt-get -y -q install --no-install-recommends postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
-
+# Define persistent volume
+VOLUME  ["/var/lib/postgresql"]
 # Run the rest of the commands as the ``postgres`` user created by the ``postgres-9.3`` package when it was ``apt-get installed``
 USER postgres
 # Create a PostgreSQL role named ``docker`` with ``docker`` as the password and
@@ -30,14 +32,20 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/9.3/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
 # Switch back to root
 USER root
-# Add VOLUMEs to allow backup of databases
-VOLUME  ["/var/lib/postgresql"]
+
+# Setup bind
+RUN apt-get install -y --no-install-recommends bind9
+ADD config/buddycloud-bind-zone-conf.local /tmp/buddycloud-bind-zone-conf.local
+RUN cat /tmp/buddycloud-bind-zone-conf.local >> /etc/bind/named.conf.local
+ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lua-sec
+# Define persistent volume
+VOLUME  ["/var/lib/prosody"]
 ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
-RUN touch /var/log/buddycloud/prosody.log /var/log/buddycloud/prosody.err
-RUN chown prosody /var/log/buddycloud/prosody.log /var/log/buddycloud/prosody.err
+RUN mkdir -p $LOG_DIR/prosody
+RUN chown -R prosody $LOG_DIR/prosody
 
 # Setup buddycloud-layer
 RUN apt-get install -y --no-install-recommends openjdk-7-jre-headless dbconfig-common
@@ -63,7 +71,9 @@ ADD config/buddycloud-media-server-log4j.xml /usr/share/buddycloud-server-java/l
 ADD bin/buddycloud-media-server-create-user.sh /tmp/buddycloud-media-server-create-user.sh
 RUN /etc/init.d/prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
 # create storage dir and give proper permissions
-RUN mkdir -p /var/lib/media-storage; chown -R buddycloud:buddycloud /var/lib/media-storage
+RUN mkdir -p /var/lib/buddycloud-media-server; chown -R buddycloud:buddycloud /var/lib/buddycloud-media-server
+# Add persistent VOLUMEs
+VOLUME  ["/var/lib/buddycloud-media-server"]
 
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
@@ -88,6 +98,10 @@ RUN a2ensite buddycloud-apache-virtual-host
 
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT service bind9 start && service postgresql start && service prosody start && \
+ENTRYPOINT mkdir -p $LOG_DIR/prosody && chown -R prosody $LOG_DIR/prosody && \
+           mkdir -p $LOG_DIR/buddycloud-server-java && chown -R buddycloud $LOG_DIR/buddycloud-server-java && \
+           mkdir -p $LOG_DIR/buddycloud-http-api && chown -R buddycloud $LOG_DIR/buddycloud-http-api && \
+           mkdir -p $LOG_DIR/buddycloud-media-server && chown -R buddycloud $LOG_DIR/buddycloud-media-server && \
+           service bind9 start && service postgresql start && service prosody start && \
            /etc/init.d/buddycloud-server-java start && /etc/init.d/buddycloud-media-server start && \
            service apache2 restart && /etc/init.d/buddycloud-http-api start; /bin/bash

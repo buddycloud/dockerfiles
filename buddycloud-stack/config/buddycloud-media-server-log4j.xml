@@ -9,11 +9,11 @@
   </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>/var/log/buddycloud-media-server/mediaserver.log</file>
+    <file>/var/log/buddycloud/buddycloud-media-server/buddycloud-media-server.log</file>
 
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <!-- daily rollover -->
-      <fileNamePattern>/var/log/buddycloud-media-server/mediaserver.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>/var/log/buddycloud/buddycloud-media-server/buddycloud-media-server.%d{yyyy-MM-dd}.log</fileNamePattern>
 
       <!-- keep 30 days' worth of history -->
       <maxHistory>30</maxHistory>

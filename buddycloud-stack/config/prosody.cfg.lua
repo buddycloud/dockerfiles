@@ -14,8 +14,8 @@ modules_enabled = {
 storage                 = "internal"
 admins                  = { "your-username@buddycloud.dev" }  -- who receives registration alerts
 pidfile                 = "/var/run/prosody/prosody.pid"
-log                     = {{ levels = { min = "error" }, to = "file", filename = "/var/log/prosody/prosody.err" };
-                           { levels = { min = "info"  }, to = "file", filename = "/var/log/prosody/prosody.log" };}
+log                     = {{ levels = { min = "error" }, to = "file", filename = "/var/log/buddycloud/prosody/prosody.err" };
+                           { levels = { min = "info"  }, to = "file", filename = "/var/log/buddycloud/prosody/prosody.log" };}
 registration_whitelist      = { "127.0.0.1" }
 whitelist_registration_only = true
 

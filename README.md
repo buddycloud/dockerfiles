@@ -29,13 +29,11 @@ This Dockerfile setups a buddycloud stack with the following features:
 
 Launch your process
 ```
-docker run 
-  -i 
-  --dns 8.8.8.8 
-  -v /srv/ssl:/srv/ssl 
-  -v /srv/buddycloud-stack/logs:/var/log/buddycloud 
-  -v /srv/buddycloud-stack/media-storage:/var/lib/media-storage
-  -P -p 80:80 -p 443:443 -p 5269:5269 
+docker run \
+  -i \
+  --dns 127.0.0.1 \
+  -v /srv/buddycloud-stack/logs:/var/log/buddycloud \
+  -P -p 80:80 -p 443:443 -p 5269:5269 \
   -t buddycloud-stack
 ```
 
