@@ -39,7 +39,7 @@ docker run \
 
 Make buddycloud.dev resolve to localhost
 ```
-  echo "127.0.0.1 buddycloud.dev" >> /etc/hosts
+echo "127.0.0.1 buddycloud.dev" >> /etc/hosts
 ```
 
 ## Build speed
