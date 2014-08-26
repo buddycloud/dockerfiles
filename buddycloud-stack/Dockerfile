@@ -10,13 +10,8 @@ ENV LOG_DIR /var/log/buddycloud
 # we try to log everything into one directory
 RUN mkdir -p $LOG_DIR
 
-# Common dependencies
-RUN apt-get install -y --no-install-recommends wget  
-
 # Setup Database-layer
 RUN apt-get -y -q install --no-install-recommends postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
-# Define persistent volume
-VOLUME  ["/var/lib/postgresql"]
 # Run the rest of the commands as the ``postgres`` user created by the ``postgres-9.3`` package when it was ``apt-get installed``
 USER postgres
 # Create a PostgreSQL role named ``docker`` with ``docker`` as the password and
@@ -41,8 +36,6 @@ ADD config/buddycloud-bind-zone.conf /etc/bind/db.buddycloud.dev
 
 # Setup XMPP-layer
 RUN apt-get install -y --no-install-recommends prosody lua-zlib lua-cyrussasl lua-sec
-# Define persistent volume
-VOLUME  ["/var/lib/prosody"]
 ADD config/prosody.cfg.lua /etc/prosody/prosody.cfg.lua
 RUN mkdir -p $LOG_DIR/prosody
 RUN chown -R prosody $LOG_DIR/prosody
@@ -72,9 +65,6 @@ ADD bin/buddycloud-media-server-create-user.sh /tmp/buddycloud-media-server-crea
 RUN /etc/init.d/prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
 # create storage dir and give proper permissions
 RUN mkdir -p /var/lib/buddycloud-media-server; chown -R buddycloud:buddycloud /var/lib/buddycloud-media-server
-# Add persistent VOLUMEs
-VOLUME  ["/var/lib/buddycloud-media-server"]
-
 # Setup Apache
 RUN apt-get install -y --no-install-recommends apache2 
 # these are keys for *.buddycloud.dev. Prosody will also use them.
@@ -88,6 +78,7 @@ RUN dpkg -i /tmp/http-api.deb
 ADD config/buddycloud-http-api-config.js /usr/share/buddycloud-http-api/config.js
 
 # Setup Buddycloud Webclient
+RUN apt-get install -y --no-install-recommends wget
 ADD http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb /tmp/webclient.deb 
 RUN dpkg -i /tmp/webclient.deb
 ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
@@ -95,6 +86,11 @@ ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/budd
 RUN a2enmod proxy_wstunnel rewrite ssl headers expires
 RUN a2dissite buddycloud-apache-virtual-host
 RUN a2ensite buddycloud-apache-virtual-host
+
+# Define persistent volumes
+VOLUME  ["/var/lib/postgresql"]
+VOLUME  ["/var/lib/buddycloud-media-server"]
+VOLUME  ["/var/lib/prosody"]
 
 EXPOSE 80 443 5222 5269
 
