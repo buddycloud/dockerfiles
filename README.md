@@ -33,6 +33,9 @@ docker run \
   -i \
   --dns 127.0.0.1 \
   -v /srv/buddycloud-stack/logs:/var/log/buddycloud \
+  -v /srv/buddycloud-stack/prosody:/var/lib/prosody \
+  -v /srv/buddycloud-stack/postgresql:/var/lib/postgresql \
+  -v /srv/buddycloud-stack/buddycloud-media-server:/var/lib/buddycloud-media-server \
   -P -p 80:80 -p 443:443 -p 5269:5269 \
   -t buddycloud-stack
 ```

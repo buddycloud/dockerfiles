@@ -88,13 +88,15 @@ RUN a2dissite buddycloud-apache-virtual-host
 RUN a2ensite buddycloud-apache-virtual-host
 
 # Define persistent volumes
-VOLUME  ["/var/lib/postgresql"]
-VOLUME  ["/var/lib/buddycloud-media-server"]
-VOLUME  ["/var/lib/prosody"]
+RUN apt-get install -y --no-install-recommends rsync
+ADD bin/restore-volumes.sh /tmp/restore-volumes.sh
+ADD bin/backup-volumes.sh /tmp/backup-volumes.sh
+RUN /bin/bash /tmp/backup-volumes.sh
 
 EXPOSE 80 443 5222 5269
 
-ENTRYPOINT mkdir -p $LOG_DIR/prosody && chown -R prosody $LOG_DIR/prosody && \
+ENTRYPOINT /bin/bash /tmp/restore-volumes.sh && \
+           mkdir -p $LOG_DIR/prosody && chown -R prosody $LOG_DIR/prosody && \
            mkdir -p $LOG_DIR/buddycloud-server-java && chown -R buddycloud $LOG_DIR/buddycloud-server-java && \
            mkdir -p $LOG_DIR/buddycloud-http-api && chown -R buddycloud $LOG_DIR/buddycloud-http-api && \
            mkdir -p $LOG_DIR/buddycloud-media-server && chown -R buddycloud $LOG_DIR/buddycloud-media-server && \
