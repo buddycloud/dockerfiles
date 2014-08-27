@@ -92,12 +92,14 @@ VOLUME  ["/var/lib/postgresql"]
 VOLUME  ["/var/lib/buddycloud-media-server"]
 VOLUME  ["/var/lib/prosody"]
 
-EXPOSE 80 443 5222 5269
+# 5347 is the Prosody component port
+# 5432 is Postgres (the external buddycloud-server will need to connect to it)
+EXPOSE 80 443 5222 5269 5347 5432
 
 ENTRYPOINT mkdir -p $LOG_DIR/prosody && chown -R prosody $LOG_DIR/prosody && \
            mkdir -p $LOG_DIR/buddycloud-server-java && chown -R buddycloud $LOG_DIR/buddycloud-server-java && \
            mkdir -p $LOG_DIR/buddycloud-http-api && chown -R buddycloud $LOG_DIR/buddycloud-http-api && \
            mkdir -p $LOG_DIR/buddycloud-media-server && chown -R buddycloud $LOG_DIR/buddycloud-media-server && \
            service bind9 start && service postgresql start && service prosody start && \
-           /etc/init.d/buddycloud-server-java start && /etc/init.d/buddycloud-media-server start && \
+           /etc/init.d/buddycloud-media-server start && \
            service apache2 restart && /etc/init.d/buddycloud-http-api start; /bin/bash
