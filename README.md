@@ -40,36 +40,20 @@ docker run \
   -t buddycloud-stack
 ```
 
-Make buddycloud.dev resolve to localhost
-```
+## Ways to run this
+
+### A new domain (buddycloud.dev)
+
+The existing Dockerfile will _just work_
+
+The Dockerfile runs a nameserver that resolves the different buddycloud components. 
+
+All you need to do is add `buddycloud.dev` resolve to `localhost`
+
+```bash
 echo "127.0.0.1 buddycloud.dev" >> /etc/hosts
 ```
 
-## Build speed
+### On am existing domain (your-domain.com)
 
-Squid will speed up builds
-
-```bash
-apt-get install squid
-```
-
-edit `/etc/squid3/squid.conf`
-
-The important lines are
-```
-http_port 127.0.0.1:3128
-refresh_pattern (\.deb|\.udeb|\.rpm)$   129600 100% 129600
-```
-
-```bash
-service squid3 restart 
-```
-
-edit your docker config (`/etc/default/docker`)
-
-```
-# If you need Docker to use an HTTP proxy, it can also be specified here.
-export http_proxy="http://127.0.0.1:3128/"
-```
-
-and restart with `service docker restart`
+Assuming you have an existing XMPP server you will need to...
