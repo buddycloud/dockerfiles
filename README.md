@@ -1,31 +1,23 @@
 Buddycloud ♥ Docker
 ===================
 
-A dockerfile to run the Buddycloud stack. 
-Please submit more.
+A dockerfile to run the Buddycloud stack components:
+* Buddycloud web-app
+* REST and webscocket http-API and xmpp-ftw
+* Buddycloud Server
+* Media Server
+* a Prosody server (but can work against an existing server)
 
-Includes
-* webclient
-* API + xmpp-ftw
-* buddycloud-server
-* media server
-* prosody server
-
-## How this works
-
-This Dockerfile setups a buddycloud stack with the following features:
-* `config` directory contains a copy of all config files that are needed for a full stack.
-* `-v somewhere-on-your-host-fs:/var/log/`
+This Dockerfile configures a Buddycloud stack by copying the contents of the `config` directory into the container. It will also preserve your existing data using the Docker `VOLUME` and `-v` config and runtime options.
 
 ## Setup
 
 * Install Docker on your system
 * `git clone git@github.com:buddycloud/dockerfiles.git`
 * `cd dockerfiles/buddycloud-stack`
-* quickly configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/EXAMPLE.COM/mydomain.com/g' {} \;`
 * `docker  build -t buddycloud-stack .`
 
-## Running
+## Launching
 
 Launch your process
 ```
@@ -42,7 +34,7 @@ docker run \
 
 ## Ways to run this
 
-### A new domain (buddycloud.dev)
+### buddycloud.dev (a testing domain)
 
 The existing Dockerfile will _just work_
 
@@ -54,6 +46,13 @@ All you need to do is add `buddycloud.dev` resolve to `localhost`
 echo "127.0.0.1 buddycloud.dev" >> /etc/hosts
 ```
 
-### On am existing domain (your-domain.com)
+### your-domain.com (uses Dockerfile XMPP server)
 
-Assuming you have an existing XMPP server you will need to...
+Configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/your-domain.com/g' {} \;`
+
+* unconfigure the included bind server @abmar ???
+
+### your-domain.com (runs against your existing XMPP server)
+
+* configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/mydomain.com/g' {} \;`
+* change the existing components to point at your xmpp server... @abmar how?
