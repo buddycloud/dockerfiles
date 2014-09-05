@@ -65,11 +65,6 @@ ADD bin/buddycloud-media-server-create-user.sh /tmp/buddycloud-media-server-crea
 RUN /etc/init.d/prosody start && /bin/bash /tmp/buddycloud-media-server-create-user.sh
 # create storage dir and give proper permissions
 RUN mkdir -p /var/lib/buddycloud-media-server; chown -R buddycloud:buddycloud /var/lib/buddycloud-media-server
-# Setup Apache
-RUN apt-get install -y --no-install-recommends apache2 
-# these are keys for *.buddycloud.dev. Prosody will also use them.
-ADD config/buddycloud.dev.cert.pem    /etc/apache2/certs/
-ADD config/buddycloud.dev.key.pem     /etc/apache2/certs/
 
 # Setup http-api
 RUN apt-get install -y --no-install-recommends nodejs
@@ -77,15 +72,23 @@ ADD http://downloads.buddycloud.com/packages/debian/nightly/buddycloud-http-api/
 RUN dpkg -i /tmp/http-api.deb
 ADD config/buddycloud-http-api-config.js /usr/share/buddycloud-http-api/config.js
 
+# Setup and configure nginx
+RUN apt-get install -y --no-install-recommends nginx
+RUN rm /etc/nginx/sites-enabled/default
+ADD config/nginx.conf /etc/nginx/nginx.conf
+# these are keys for buddycloud.dev. Prosody will also use them.
+RUN mkdir -p /etc/certs/
+ADD config/buddycloud.dev.cert.pem /etc/certs/
+ADD config/buddycloud.dev.key.pem /etc/certs/
+
 # Setup Buddycloud Webclient
-RUN apt-get install -y --no-install-recommends wget
 ADD http://downloads.buddycloud.com/packages/debian/nightly/webclient/webclient_latest.deb /tmp/webclient.deb 
 RUN dpkg -i /tmp/webclient.deb
-ADD config/buddycloud-webclient-config.js      /usr/share/buddycloud-webclient/config.js
-ADD config/buddycloud-apache-virtual-host.conf /etc/apache2/sites-available/buddycloud-apache-virtual-host.conf
-RUN a2enmod proxy_wstunnel rewrite ssl headers expires
-RUN a2dissite buddycloud-apache-virtual-host
-RUN a2ensite buddycloud-apache-virtual-host
+ADD config/buddycloud-webclient-config.js /usr/share/buddycloud-webclient/config.js
+ADD config/buddycloud-nginx-server-block /etc/nginx/sites-available/buddycloud.dev
+
+# Configure nginx server block
+RUN ln -s /etc/nginx/sites-available/buddycloud.dev /etc/nginx/sites-enabled/
 
 # Define persistent volumes
 RUN apt-get install -y --no-install-recommends rsync
@@ -102,4 +105,4 @@ ENTRYPOINT /bin/bash /tmp/restore-volumes.sh && \
            mkdir -p $LOG_DIR/buddycloud-media-server && chown -R buddycloud $LOG_DIR/buddycloud-media-server && \
            service bind9 start && service postgresql start && service prosody start && \
            /etc/init.d/buddycloud-server-java start && /etc/init.d/buddycloud-media-server start && \
-           service apache2 restart && /etc/init.d/buddycloud-http-api start; /bin/bash
+           service nginx restart && /etc/init.d/buddycloud-http-api start; /bin/bash

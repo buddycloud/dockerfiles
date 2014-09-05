@@ -24,8 +24,8 @@ VirtualHost "buddycloud.dev"
   authentication        = "internal_hashed"
   allow_registration    = true 
   anonymous_login       = false
-  ssl                   = { certificate = "/etc/apache2/certs/buddycloud.dev.cert.pem";
-                                    key = "/etc/apache2/certs/buddycloud.dev.key.pem" }
+  ssl                   = { certificate = "/etc/certs/buddycloud.dev.cert.pem";
+                                    key = "/etc/certs/buddycloud.dev.key.pem" }
 
 -- for non-logged in browsing of open channels.
 VirtualHost "anon.buddycloud.dev"
