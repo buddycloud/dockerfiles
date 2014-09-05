@@ -37,6 +37,7 @@ You can run this file three ways:
 * configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/your-domain.com/g' {} \;`
 * configure the Buddycloud server component to point to your server IP. (variable is `xmpp.host` in  [buddycloud-server-java-configuration.properties](https://github.com/buddycloud/dockerfiles/blob/master/buddycloud-stack/config/buddycloud-server-java-configuration.properties))
 * configure the Buddycloud media server component to point to your server IP. (variable is `xmpp.component.host` in [buddycloud-media-server-configuration.properties](https://github.com/buddycloud/dockerfiles/blob/master/buddycloud-stack/config/buddycloud-media-server-configuration.properties))
+* configure the Buddycloud http api to point to your server IP. (variable is `xmppHost` in [buddycloud-http-api-config.js](https://github.com/buddycloud/dockerfiles/blob/master/buddycloud-stack/config/buddycloud-http-api-config.js))
 * rebuild your Dockerfile
 * configure your [DNS for Buddycloud](http://buddycloud.com/install#buddycloud_dns_)
 
