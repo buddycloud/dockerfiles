@@ -34,25 +34,28 @@ docker run \
 
 ## Ways to run this
 
-### buddycloud.dev (a testing domain)
-
-The existing Dockerfile will _just work_
+### http://buddycloud.dev (good for developing without a real Domain)
 
 The Dockerfile runs a nameserver that resolves the different buddycloud components. 
 
-All you need to do is add `buddycloud.dev` resolve to `localhost`
+Setup
 
 ```bash
 echo "127.0.0.1 buddycloud.dev" >> /etc/hosts
 ```
 
-### your-domain.com (uses Dockerfile XMPP server)
+Then go to http://buddycloud.dev
+
+### http://your-domain.com (uses the included XMPP server)
 
 Configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/your-domain.com/g' {} \;`
 
-* unconfigure the included bind server @abmar ???
 
-### your-domain.com (runs against your existing XMPP server)
+### http://your-domain.com (uses your XMPP server)
 
-* configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/mydomain.com/g' {} \;`
-* change the existing components to point at your xmpp server... @abmar how?
+* configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/your-domain.com/g' {} \;`
+* configure the Buddycloud server component to point to your server IP. (variable is `xmpp.host` in file [buddycloud-server-java-configuration.properties](https://github.com/buddycloud/dockerfiles/blob/master/buddycloud-stack/config/buddycloud-server-java-configuration.properties))
+* configure the Buddycloud media server component to point to your server IP. (variable is `xmpp.component.host` in [buddycloud-media-server-configuration.properties] file (https://github.com/buddycloud/dockerfiles/blob/master/buddycloud-stack/config/buddycloud-media-server-configuration.properties)
+* rebuild your Dockerfile
+* configure your [DNS for Buddycloud](http://buddycloud.com/install#buddycloud_dns_)
+* Then go to http://buddycloud.{your-domain}.com
