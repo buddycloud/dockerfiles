@@ -17,7 +17,7 @@ You can run this file three ways:
 * on your own domain using the build on XMPP server
 * on your own domain using an existing XMPP server
 
-### http://buddycloud.dev
+### option 1: buddycloud.dev
 
 * Setup DNS on your workstation
 ```bash
@@ -25,7 +25,7 @@ echo "127.0.0.1 buddycloud.dev" >> /etc/hosts
 ```
 * go to http://buddycloud.dev
 
-### your-domain.com (includes XMPP server)
+### option 2: your-domain.com (includes XMPP server)
 
 * configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/your-domain.com/g' {} \;`
 * rebuild your Dockerfile
@@ -33,7 +33,7 @@ echo "127.0.0.1 buddycloud.dev" >> /etc/hosts
 * go to http://buddycloud.{your-domain.com}
 
 
-### your-domain.com (existing XMPP server)
+### option 3: your-domain.com (you already have an XMPP server)
 
 * configure the stack for your own domain using `find ./config -type f -exec sed -i -e 's/buddycloud.dev/your-domain.com/g' {} \;`
 * configure the Buddycloud server component to point to your server IP. (variable is `xmpp.host` in  [buddycloud-server-java-configuration.properties](https://github.com/buddycloud/dockerfiles/blob/master/buddycloud-stack/config/buddycloud-server-java-configuration.properties))
